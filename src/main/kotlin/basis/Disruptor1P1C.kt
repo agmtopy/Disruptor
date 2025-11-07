@@ -55,7 +55,7 @@ fun createConsumerHandler(): EventHandler<SimpleEvent> {
  * 创建disruptor对象
  */
 fun createDisruptor(): Disruptor<SimpleEvent> {
-    //1. 定义Simple factory
+    //1. 定义event factory
     val eventFactory = EventFactory<SimpleEvent> {
         SimpleEvent(0, "")
     }
