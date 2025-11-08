@@ -1,26 +1,26 @@
 package performance.basis;
 
-import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import java.time.LocalTime;
 import java.util.stream.IntStream;
 
 /**
- * 1生产者-2消费者模式
+ * 1生产者-1消费组模式
  */
-public class Disruptor1P2C  extends BaseDisruptor{
+public class Disruptor1P1G extends BaseDisruptor{
 
   public static void main(String[] args) {
     //1. 创建disruptor对象
     Disruptor<SimpleEvent> disruptor = createDisruptor();
 
     //2. 创建消费者
-    EventHandler<SimpleEvent> consumerHandler1 = createConsumerHandler1();
-    EventHandler<SimpleEvent> consumerHandler2 = createConsumerHandler2();
+    WorkHandler<SimpleEvent> consumerHandler1_1 = createConsumerHandler1_1();
+    WorkHandler<SimpleEvent> consumerHandler1_2 = createConsumerHandler1_2();
 
-    //3. 注册消费者
-    disruptor.handleEventsWith(consumerHandler1, consumerHandler2);
+    //3. 注册同一个消费组多个消费者
+    disruptor.handleEventsWithWorkerPool(consumerHandler1_1, consumerHandler1_2);
 
     //4. 启动Disruptor
     disruptor.start();
@@ -45,15 +45,15 @@ public class Disruptor1P2C  extends BaseDisruptor{
     });
   }
 
-  private static EventHandler<SimpleEvent> createConsumerHandler1() {
-    return (event, sequence, endOfBatch) ->
-        System.out.println(Thread.currentThread().getName() + ",createConsumerHandler1方法消费事件: "
+  private static WorkHandler<SimpleEvent> createConsumerHandler1_1() {
+    return (event) -> System.out.println(
+        Thread.currentThread().getName() + ",createConsumerHandler1_1方法消费事件: "
             + event.getI() + ", " + event.getMsg());
   }
 
-  private static EventHandler<SimpleEvent> createConsumerHandler2() {
-    return (event, sequence, endOfBatch) ->
-        System.out.println(Thread.currentThread().getName() + ",createConsumerHandler2方法消费事件: "
+  private static WorkHandler<SimpleEvent> createConsumerHandler1_2() {
+    return (event) -> System.out.println(
+        Thread.currentThread().getName() + ",createConsumerHandler1_2方法消费事件: "
             + event.getI() + ", " + event.getMsg());
   }
 }
